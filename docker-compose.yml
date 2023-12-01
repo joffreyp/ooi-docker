@@ -1,50 +1,53 @@
-version: '2'
+version: '3.8'
+
 services:
   cassandra:
-    image: cassandra:2
+    image: cassandra:4.0.11
     hostname: cassandra
     ports:
       - "9042:9042"
       - "9160:9160"
     volumes:
-      - ./volumes/cassandra_data:/var/lib/cassandra
+      - cassandra-db:/var/lib/cassandra
 
   qpid:
-    image: ooi-qpid:0.18
+    image: qpid:9.1.0
     hostname: qpid
     ports:
       - "5672:5672"
       - "8080:8080"
 
   postgres:
-    image: ooi-postgres:9.2
+    image: postgres:13.13-alpine
     hostname: postgres
     ports:
       - "5432:5432"
+    volumes: 
+      - postgres-db:/var/lib/postgresql/data
 
-  redis:
-    image: redis
-    hostname: redis
-    ports:
-      - "6379:6379"
+  # redis:
+  #   image: redis
+  #   hostname: redis
+  #   ports:
+  #     - "6379:6379"
 
-  uframe:
-    image: ooi-uframe:0.01
-    hostname: uframe
-    depends_on:
-      - cassandra
-      - qpid
-      - postgres
-    ports:
-      - "12570-12600:12570-12600"
-    volumes:
-      - ./volumes/ooi:/edex/data/ooi
-      - ./volumes/async:/opt/ooi/async
-    environment:
-      - EDEX_RUN_MODE=ooi
-      - CASSANDRA_CONTACTPOINTS=cassandra
-      - CASSANDRA_PORT=9042
-      - CASSANDRA_KEYSPACE=ooi
+  # uframe:
+  #   image: ooi-uframe:0.01
+  #   hostname: uframe
+  #   depends_on:
+  #     - cassandra
+  #     - qpid
+  #     - postgres
+  #   ports:
+  #     - "12570-12600:12570-12600"
+  #   volumes:
+  #     - ./volumes/ooi:/edex/data/ooi
+  #     - ./volumes/async:/opt/ooi/async
+  #   environment:
+  #     - EDEX_RUN_MODE=ooi
+  #     - CASSANDRA_CONTACTPOINTS=cassandra
+  #     - CASSANDRA_PORT=9042
+  #     - CASSANDRA_KEYSPACE=ooi
 
 #  uframe-cabled:
 #    image: ooi-uframe:0.01
@@ -66,16 +69,22 @@ services:
 #    environment:
 #      - EDEX_RUN_MODE=uncabled_ingest
 
-  stream_engine:
-    image: ooi-stream-engine:0.01
-    hostname: stream_engine
-    depends_on:
-      - cassandra
-    volumes:
-      - ./volumes/async:/opt/ooi/async
+  # stream_engine:
+  #   image: ooi-stream-engine:0.01
+  #   hostname: stream_engine
+  #   depends_on:
+  #     - cassandra
+  #   volumes:
+  #     - ./volumes/async:/opt/ooi/async
 
-  ingest_engine:
-    image: ooi-ingest-engine:0.01
-    hostname: ingest_engine
-    volumes:
-      - ./volumes/ingest_data:/data
+  # ingest_engine:
+  #   image: ooi-ingest-engine:0.01
+  #   hostname: ingest_engine
+  #   volumes:
+  #     - ./volumes/ingest_data:/data
+
+volumes:
+  postgres-db:
+    driver: local
+  cassandra-db:
+    driver: local
