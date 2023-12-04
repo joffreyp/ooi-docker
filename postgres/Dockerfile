@@ -1,3 +1,4 @@
-FROM mdillon/postgis:9.2
+FROM postgis/postgis:13-3.4
+#FROM postgres:13.13-alpine
 
-COPY ./initdb-ooi.sh /docker-entrypoint-initdb.d/zz_ooi.sh
+COPY --chmod=755 init.sql /docker-entrypoint-initdb.d/

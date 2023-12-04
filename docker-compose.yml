@@ -18,12 +18,22 @@ services:
       - "8080:8080"
 
   postgres:
-    image: postgres:13.13-alpine
+    build:
+      dockerfile: postgres/Dockerfile
+      context: postgres
+    image: ooi-postgres
+    #image: postgres:13.13-alpine
     hostname: postgres
     ports:
       - "5432:5432"
+    env_file:
+      - .env
+    group_add:
+      - keep-groups
+    # privileged: true
     volumes: 
       - postgres-db:/var/lib/postgresql/data
+      # - /mnt/repos/preload-database/preload_database.sql:/docker-entrypoint-initdb.d/create_tables.sql
 
   # redis:
   #   image: redis
