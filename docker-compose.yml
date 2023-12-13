@@ -10,30 +10,32 @@ services:
     volumes:
       - cassandra-db:/var/lib/cassandra
 
-  qpid:
-    image: qpid:9.1.0
-    hostname: qpid
-    ports:
-      - "5672:5672"
-      - "8080:8080"
+  # qpid:
+  #   image: qpid:9.1.0
+  #   hostname: qpid
+  #   env_file:
+  #     - qpid/.env
+  #   ports:
+  #     - "5672:5672"
+  #     - "8080:8080"
+  #   volumes:
+  #     - ./qpid/initial-config.json:/qpid-broker-j/work-init/config.json:ro
+
 
   postgres:
     build:
-      dockerfile: postgres/Dockerfile
+      dockerfile: Dockerfile
       context: postgres
     image: ooi-postgres
-    #image: postgres:13.13-alpine
     hostname: postgres
     ports:
       - "5432:5432"
     env_file:
-      - .env
+      - postgres/.env
     group_add:
       - keep-groups
-    # privileged: true
     volumes: 
       - postgres-db:/var/lib/postgresql/data
-      # - /mnt/repos/preload-database/preload_database.sql:/docker-entrypoint-initdb.d/create_tables.sql
 
   # redis:
   #   image: redis
