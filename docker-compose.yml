@@ -2,25 +2,30 @@ version: '3.8'
 
 services:
   cassandra:
-    image: cassandra:4.0.11
+    #  image: cassandra:4.0.11
+    build:
+      dockerfile: Dockerfile
+      context: cassandra
+    image: ooi-cassandra
     hostname: cassandra
     ports:
       - "9042:9042"
       - "9160:9160"
     volumes:
-      - cassandra-db:/var/lib/cassandra
-
-  # qpid:
-  #   image: qpid:9.1.0
-  #   hostname: qpid
-  #   env_file:
-  #     - qpid/.env
-  #   ports:
-  #     - "5672:5672"
-  #     - "8080:8080"
-  #   volumes:
-  #     - ./qpid/initial-config.json:/qpid-broker-j/work-init/config.json:ro
-
+      #      - /home/asadev/.cassandra/cassandra.yaml:/etc/cassandra/cassandra.yaml:rw
+      - cassandra-database:/var/lib/cassandra
+        
+        #qpid:
+        #    image: qpid:9.1.0
+        #    hostname: qpid
+        #    env_file:
+        #      - qpid/.env      
+        #    ports:
+        #      - "5672:5672"
+        #     - "8180:8080"
+        #   volumes:
+        #     - ./volumes/qpid-work:/qpid-broker-j/work
+        #     - /home/asadev/initial-config.json:/qpid-broker-j/work-init/config.json:rw
 
   postgres:
     build:
@@ -35,7 +40,9 @@ services:
     group_add:
       - keep-groups
     volumes: 
-      - postgres-db:/var/lib/postgresql/data
+      - postgres-database:/var/lib/postgresql/data
+      #- ./postgres/postgresql.conf:/var/lib/postgresql/data/postgresql.conf:ro
+      # - /mnt/repos/preload-database/preload_database.sql:/docker-entrypoint-initdb.d/create_tables.sql
 
   # redis:
   #   image: redis
@@ -96,7 +103,11 @@ services:
   #     - ./volumes/ingest_data:/data
 
 volumes:
-  postgres-db:
+  #  postgres-db:
+  postgres-database:
     driver: local
-  cassandra-db:
+  #  cassandra-db:
+  cassandra-database:
     driver: local
+      #  qpid-work:
+      #    driver: local
