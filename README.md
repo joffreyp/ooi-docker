@@ -1,57 +1,30 @@
-# Running a complete OOI system using docker compose
+# Run a containerized OOI system stack
 
-1. Build the QPID, Postgres, Ingest Engine and Stream Engine images
-2. Build a cassandra data directory with all OOI tables defined
-3. Start everything with docker-compose
+This repository contains an orchestrated collection of containers providing key OOI back-end services using podman and podman-compose. 
 
-The docker-compose.yml file here exposes several volumes allowing us to interact
-with various parts of the OOI system:
+__Note:__ This project is under (re) development, and only supports a few services at present.
 
-* async - output directory for async data requests
-* cassandra_data - database files for cassandra
-* ingest_data - input directory for data files to be ingested
-  * copy files here prior to sending a request for ingestion
-* ooi - input directory for uframe (asset management spreadsheets, qc sheets, etc.)
+# Running OOI Databases
+To run the Postgres and Cassandra databases for local testing, follow these steps:
 
-
-## Configuring Cassandra
-
-Prior to starting uframe we need to create a cassandra database directory
-populated with our desired tables. This can be accomplished by starting up
-a temporary cassandra container with an exposed data directory, then creating
-our keyspace and tables. The temporary container can then be destroyed and the
-data directory moved to the compose volume mount point. This directory can also
-be archived between tests, then unpacked to create a clean, pre-configured
-cassandra for each test/test group.
-
-```
-$ docker run -p 127.0.0.1:9042:9042 --name cassload -v $(pwd)/cassandra_data:/var/lib/cassandra cassandra:2.1.11
+1. Clone this repository onto the local/development environment
+2. From the repository clone directory, build the Cassandra and Postgres images:
+```shell
+cd ~/repos/ooi-docker
+podman-compose build cassandra
+podman-compose build postgres
+``` 
+3. Bring up the databases:
+```shell
+cd ~/repos/ooi-docker
+podman-compose up -d
 ```
 
-Docker will start up a new cassandra container. When cassandra is ready to
-accept connections you will see the following message:
+The initial database namespaces and databases are created on container spin up, and the containers store database data in persistent named podman volumes. The databases are available on the host machine via standard ports at `localhost`.
 
-```
-INFO  16:31:09 Starting listening for CQL clients on /0.0.0.0:9042...
-INFO  16:31:09 Binding thrift service to /0.0.0.0:9160
-INFO  16:31:09 Listening for thrift clients...
-```
+There are additional steps to load the OOI-specific tables and metadata which is documented elsewhere.
 
-You can then create the keyspace and OOI tables using cqlsh:
+# Qpid and other service
 
-```
-$ cqlsh --cqlversion=3.2.1 < all.cql
-```
-
-The all.cql script can be found in the uframe source under util/cql.
-
-Once the table creation is complete, we can stop the cassload container and remove it:
-
-```
-$ docker stop cassload
-$ docker rm cassload
-```
-
-If you archive the cassandra_data folder now you can bypass these steps for
-subsequent runs which don't require updates to any cassandra tables.
+We will update Qpid to run using a BrokerJ container in the future, and will update this repository with that configuration.
 
